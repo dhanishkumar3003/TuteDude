@@ -227,7 +227,11 @@
       "status": "In Stock",
       "trend": "up"
     }
-  ]
-
+  ],
+  "lowstockalert":[
+  { "name" :"Onion", "quantityLeft": "5 kg left", "isLow": true, "progress" : 5 },
+  { "name": "Tomato", "quantityLeft": "12 kg left", "isLow": false,"progress" : 10},
+  { "name": "Potato", "quantityLeft": "2 kg left", "isLow": true ,"progress":20}
+]
 
 }

@@ -90,6 +90,14 @@ interface FormattedSupplier {
 
 }
 
+interface StockItem {
+  name: string;
+  quantityLeft: string; // or number, depending on your data structure
+  isLow: boolean; // optional flag to highlight low stock in red
+  progress : number
+}
+
+
 interface itemsinterface {
   name: string, quantity: number, price: number 
 }
@@ -111,7 +119,7 @@ const [stats, setStats] = useState<Stats>({
 });
 const [topSupplierData, setTopSupllierData] = useState<FormattedSupplier[]>([]);
   const [myOrdersData, setMyOrdersData] = useState<formattedorderhistory[]>([]);
-
+const [stockItems ,setStcokItems] = useState<StockItem[]>([]);
 
 useEffect(() => {
   const fetchStats = async () => {
@@ -218,7 +226,16 @@ setMyOrdersData(foramtteddatas);
       }}
       fetchOrderHistory();
 
+  const fetchlowstocks = async () => {
+    try {
+      const response = await api.get<StockItem[]>('/lowstockalert');
+      setStcokItems(response.data);
+    } catch (error) {
+      console.error('Failed to fetch stats', error);
+    }
+  };
 
+  fetchlowstocks();
 
 
 }, []);
@@ -334,23 +351,19 @@ setMyOrdersData(foramtteddatas);
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm">Onion</span>
-                    <span className="text-sm text-red-600">5 kg left</span>
-                  </div>
-                  <Progress value={20} className="h-2" />
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm">Tomato</span>
-                    <span className="text-sm text-red-600">3 kg left</span>
-                  </div>
-                  <Progress value={15} className="h-2" />
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm">Green Chili</span>
-                    <span className="text-sm text-red-600">1 kg left</span>
-                  </div>
-                  <Progress value={10} className="h-2" />
+{stockItems.map((item, index) => (<>
+  <div key={index} className="flex items-center justify-between">
+    <span className="text-sm">{item.name}</span>
+    <span className={`text-sm ${item.isLow ? 'text-red-600' : 'text-green-600'}`}>
+      {item.quantityLeft}
+    </span>
+  </div>
+                    <Progress value={item.progress} className="h-2" />
+</>
+))}
+
                 </div>
-                <p className="text-sm text-gray-600 mt-4">3 {t("stats.items_low")}</p>
+                <p className="text-sm text-gray-600 mt-4">{stockItems.filter((stockItem)=> stockItem.isLow).length} {t("stats.items_low")}</p>
               </CardContent>
             </Card>
 
