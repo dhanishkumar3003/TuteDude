@@ -9,6 +9,47 @@ import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { useLanguage } from "@/lib/language-context"
+import { useEffect } from 'react';
+import api from "@/lib/api-service"
+
+interface Supplier {
+
+ "id" : number,
+    "name" : string,
+    "location" : string,
+    "discount" : number,
+    "rating" : number,
+    "reviews" : number,
+    "orderCategory":string,
+    "minDelieveryTime" : number,
+    "maxDeliveryTime": number,
+    "minOrderPrice": number,
+    "Specialities":  string[],
+    "image" : string,
+    "verified" : boolean
+
+
+
+}
+
+
+interface FormattedSupplier {
+
+ "id" : number,
+    "name" : string,
+    "location" : string,
+    "discount" : string,
+    "rating" : number,
+    "reviews" : number,
+    "category":string,
+"deliveryTime" :string,
+"minOrder" : string,
+    "specialities":  string[],
+    "image" : string,
+"verified" : boolean
+
+}
+
 
 export default function SuppliersPage() {
   const { t } = useLanguage()
@@ -16,92 +57,140 @@ export default function SuppliersPage() {
   const [selectedCategory, setSelectedCategory] = useState("all")
   const [selectedLocation, setSelectedLocation] = useState("all")
 
-  const suppliers = [
-    {
-      id: 1,
-      name: "Ram Provision Store",
-      category: t("category.vegetables"),
-      location: t("location.karol_bagh"),
-      rating: 4.8,
-      reviews: 156,
-      verified: true,
-      deliveryTime: `2-4 ${t("delivery.hours")}`,
-      minOrder: "₹500",
-      specialties: [t("items.onion"), t("items.tomato"), "Green Vegetables"],
-      discount: `15% ${t("discount.text")}`,
-      image: "/placeholder.svg?height=100&width=100",
-    },
-    {
-      id: 2,
-      name: "Sharma Spices",
-      category: t("category.spices"),
-      location: t("location.chandni_chowk"),
-      rating: 4.7,
-      reviews: 203,
-      verified: true,
-      deliveryTime: `1-2 ${t("delivery.hours")}`,
-      minOrder: "₹300",
-      specialties: [t("items.garam_masala"), t("items.coriander_powder"), t("items.turmeric_powder")],
-      discount: `10% ${t("discount.text")}`,
-      image: "/placeholder.svg?height=100&width=100",
-    },
-    {
-      id: 3,
-      name: "Gupta Grains",
-      category: t("category.grains"),
-      location: t("location.lajpat_nagar"),
-      rating: 4.9,
-      reviews: 89,
-      verified: true,
-      deliveryTime: `4-6 ${t("delivery.hours")}`,
-      minOrder: "₹1000",
-      specialties: [t("items.basmati_rice"), t("items.toor_dal"), "Wheat Flour"],
-      discount: `20% ${t("discount.text")}`,
-      image: "/placeholder.svg?height=100&width=100",
-    },
-    {
-      id: 4,
-      name: "Patel Oil Mill",
-      category: t("category.oil"),
-      location: t("location.connaught_place"),
-      rating: 4.6,
-      reviews: 134,
-      verified: true,
-      deliveryTime: `3-5 ${t("delivery.hours")}`,
-      minOrder: "₹800",
-      specialties: [t("items.mustard_oil"), "Sunflower Oil", t("items.ghee")],
-      discount: `12% ${t("discount.text")}`,
-      image: "/placeholder.svg?height=100&width=100",
-    },
-    {
-      id: 5,
-      name: "Khan Meat Supply",
-      category: t("category.meat"),
-      location: t("location.jama_masjid"),
-      rating: 4.5,
-      reviews: 67,
-      verified: true,
-      deliveryTime: `1-3 ${t("delivery.hours")}`,
-      minOrder: "₹600",
-      specialties: ["Chicken", "Mutton", "Fish"],
-      discount: `8% ${t("discount.text")}`,
-      image: "/placeholder.svg?height=100&width=100",
-    },
-    {
-      id: 6,
-      name: "Singh Dairy Farm",
-      category: t("category.dairy"),
-      location: t("location.gurgaon"),
-      rating: 4.8,
-      reviews: 198,
-      verified: true,
-      deliveryTime: `2-4 ${t("delivery.hours")}`,
-      minOrder: "₹400",
-      specialties: ["Milk", t("items.paneer"), t("items.curd")],
-      discount: `18% ${t("discount.text")}`,
-      image: "/placeholder.svg?height=100&width=100",
-    },
-  ]
+const [supplierData, setSupllierData] = useState<FormattedSupplier[]>([]);
+  const [sortField, setSortField] = useState<keyof FormattedSupplier>('rating');
+
+useEffect(() => {
+  const fetchSuppliers = async () => {
+    try {
+      const response = await api.get<Supplier[]>('/suppliers');
+     // console.log(response.data);
+      if(response.data)
+      {
+        const foramtteddatas: FormattedSupplier[] = [];
+        const datafromapi = response.data
+
+        datafromapi.forEach((supplier)=>{
+          var foramtspecialities = supplier.Specialities;
+          foramtspecialities.forEach((text)=>{
+            text = `items.${text.toLowerCase()}`;
+          })
+
+          var Formatsupplier = {
+            "id" : supplier.id,
+            "name" : supplier.name,
+            "category" : t(`category.${supplier.orderCategory.toLowerCase()}`),
+            "location" : t(`location.${supplier.location.toLowerCase()}`),
+            "rating" : supplier.rating,
+            "reviews" : supplier.reviews,
+            "verified" : supplier.verified,
+            "deliveryTime" : `${supplier.minDelieveryTime}-${supplier.maxDeliveryTime} ${t("delivery.hours")}`,
+      "minOrder": `₹${supplier.minOrderPrice}`,
+      "specialities": foramtspecialities,
+      "discount": `${supplier.discount}% ${t("discount.text")}`,
+      "image": supplier.image,
+           
+          }
+
+          foramtteddatas.push(Formatsupplier);
+        })
+//console.log(foramtteddatas)
+setSupllierData(foramtteddatas);
+      }
+    } catch (error) {
+      console.error('Failed to fetch stats', error);
+    }
+  };
+
+  fetchSuppliers();
+}, []);
+
+  // const suppliers = [
+  //   {
+  //     id: 1,
+  //     name: "Ram Provision Store",
+  //     category: t("category.vegetables"),
+  //     location: t("location.karol_bagh"),
+  //     rating: 4.8,
+  //     reviews: 156,
+  //     verified: true,
+  //     deliveryTime: `2-4 ${t("delivery.hours")}`,
+  //     minOrder: "₹500",
+  //     specialties: [t("items.onion"), t("items.tomato"), "Green Vegetables"],
+  //     discount: `15% ${t("discount.text")}`,
+  //     image: "/placeholder.svg?height=100&width=100",
+  //   },
+  //   {
+  //     id: 2,
+  //     name: "Sharma Spices",
+  //     category: t("category.spices"),
+  //     location: t("location.chandni_chowk"),
+  //     rating: 4.7,
+  //     reviews: 203,
+  //     verified: true,
+  //     deliveryTime: `1-2 ${t("delivery.hours")}`,
+  //     minOrder: "₹300",
+  //     specialties: [t("items.garam_masala"), t("items.coriander_powder"), t("items.turmeric_powder")],
+  //     discount: `10% ${t("discount.text")}`,
+  //     image: "/placeholder.svg?height=100&width=100",
+  //   },
+  //   {
+  //     id: 3,
+  //     name: "Gupta Grains",
+  //     category: t("category.grains"),
+  //     location: t("location.lajpat_nagar"),
+  //     rating: 4.9,
+  //     reviews: 89,
+  //     verified: true,
+  //     deliveryTime: `4-6 ${t("delivery.hours")}`,
+  //     minOrder: "₹1000",
+  //     specialties: [t("items.basmati_rice"), t("items.toor_dal"), "Wheat Flour"],
+  //     discount: `20% ${t("discount.text")}`,
+  //     image: "/placeholder.svg?height=100&width=100",
+  //   },
+  //   {
+  //     id: 4,
+  //     name: "Patel Oil Mill",
+  //     category: t("category.oil"),
+  //     location: t("location.connaught_place"),
+  //     rating: 4.6,
+  //     reviews: 134,
+  //     verified: true,
+  //     deliveryTime: `3-5 ${t("delivery.hours")}`,
+  //     minOrder: "₹800",
+  //     specialties: [t("items.mustard_oil"), "Sunflower Oil", t("items.ghee")],
+  //     discount: `12% ${t("discount.text")}`,
+  //     image: "/placeholder.svg?height=100&width=100",
+  //   },
+  //   {
+  //     id: 5,
+  //     name: "Khan Meat Supply",
+  //     category: t("category.meat"),
+  //     location: t("location.jama_masjid"),
+  //     rating: 4.5,
+  //     reviews: 67,
+  //     verified: true,
+  //     deliveryTime: `1-3 ${t("delivery.hours")}`,
+  //     minOrder: "₹600",
+  //     specialties: ["Chicken", "Mutton", "Fish"],
+  //     discount: `8% ${t("discount.text")}`,
+  //     image: "/placeholder.svg?height=100&width=100",
+  //   },
+  //   {
+  //     id: 6,
+  //     name: "Singh Dairy Farm",
+  //     category: t("category.dairy"),
+  //     location: t("location.gurgaon"),
+  //     rating: 4.8,
+  //     reviews: 198,
+  //     verified: true,
+  //     deliveryTime: `2-4 ${t("delivery.hours")}`,
+  //     minOrder: "₹400",
+  //     specialties: ["Milk", t("items.paneer"), t("items.curd")],
+  //     discount: `18% ${t("discount.text")}`,
+  //     image: "/placeholder.svg?height=100&width=100",
+  //   },
+  // ]
 
   const categories = [
     { value: "all", label: t("suppliers.all_categories") },
@@ -121,15 +210,53 @@ export default function SuppliersPage() {
     { value: "faridabad", label: "Faridabad" },
   ]
 
-  const filteredSuppliers = suppliers.filter((supplier) => {
+  const filteredSuppliers = supplierData.filter((supplier) => {
     const matchesSearch =
       supplier.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      supplier.specialties.some((specialty) => specialty.toLowerCase().includes(searchTerm.toLowerCase()))
-    const matchesCategory = selectedCategory === "all" || supplier.category === selectedCategory
+      supplier.specialities.some((specialty) => specialty.toLowerCase().includes(searchTerm.toLowerCase()))
+    const matchesCategory = selectedCategory === "all" || supplier.category.toLowerCase() === selectedCategory
     const matchesLocation = selectedLocation === "all" || supplier.location.includes(selectedLocation)
 
     return matchesSearch && matchesCategory && matchesLocation
   })
+
+const sortByField = <T,>(
+  data: T[],
+  field: keyof T,
+  direction: 'asc' | 'desc' = 'asc'
+): T[] => {
+  return [...data].sort((a, b) => {
+    const aVal = a[field];
+    const bVal = b[field];
+
+    if (typeof aVal === 'string' && typeof bVal === 'string') {
+      return direction === 'asc'
+        ? aVal.localeCompare(bVal)
+        : bVal.localeCompare(aVal);
+    }
+
+    if (typeof aVal === 'number' && typeof bVal === 'number') {
+      return direction === 'asc' ? aVal - bVal : bVal - aVal;
+    }
+
+    return 0;
+  });
+};
+
+
+ const handleSortChange = (value : string) => {
+     const selectedField = value as keyof FormattedSupplier;
+     console.log(selectedField)
+    setSortField(selectedField);
+    var ascrOrDsc = 'asc';
+    if(selectedField === "rating")
+    {
+      ascrOrDsc = 'desc';
+    }
+
+    const sorted = sortByField(supplierData, sortField, 'asc');
+    setSupllierData(sorted);
+  };
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -202,17 +329,18 @@ export default function SuppliersPage() {
           <p className="text-gray-600">
             {filteredSuppliers.length} {t("suppliers.results_found")}
           </p>
-          <Select defaultValue="rating">
+          <Select value={sortField} onValueChange={handleSortChange}>
             <SelectTrigger className="w-48">
-              <SelectValue />
+    <SelectValue placeholder="Sort by..." />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="rating">{t("suppliers.sort_by_rating")}</SelectItem>
-              <SelectItem value="distance">{t("suppliers.sort_by_distance")}</SelectItem>
-              <SelectItem value="price">{t("suppliers.sort_by_price")}</SelectItem>
-              <SelectItem value="delivery">{t("suppliers.sort_by_delivery")}</SelectItem>
+    {/* <SelectItem value="distance">{t("suppliers.sort_by_distance")}</SelectItem> */}
+    <SelectItem value="minOrder">{t("suppliers.sort_by_price")}</SelectItem>
+    {/* <SelectItem value="delivery">{t("suppliers.sort_by_delivery")}</SelectItem> */}
             </SelectContent>
           </Select>
+
         </div>
 
         {/* Suppliers Grid */}
@@ -266,14 +394,14 @@ export default function SuppliersPage() {
                 <div>
                   <p className="text-sm text-gray-600 mb-2">{t("suppliers.specialties")}</p>
                   <div className="flex flex-wrap gap-1">
-                    {supplier.specialties.slice(0, 3).map((specialty, index) => (
+                    {supplier.specialities.slice(0, 3).map((specialty, index) => (
                       <Badge key={index} variant="outline" className="text-xs">
                         {specialty}
                       </Badge>
                     ))}
-                    {supplier.specialties.length > 3 && (
+                    {supplier.specialities.length > 3 && (
                       <Badge variant="outline" className="text-xs">
-                        +{supplier.specialties.length - 3} more
+                        +{supplier.specialities.length - 3} more
                       </Badge>
                     )}
                   </div>

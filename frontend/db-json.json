@@ -1,0 +1,95 @@
+{
+  "users": [
+    { "id": 1, "name": "Alice", "email": "alice@example.com" },
+    { "id": 2, "name": "Bob", "email": "bob@example.com" }
+  ],
+  "posts": [
+    { "id": 1, "title": "Hello World", "author": "Alice" }
+  ],
+  "stats" : {
+    "monthlySavings" : 100,
+     "monthlySavingsPercentage" : 15,
+    "totalOrders" : 10,
+    "totalOrdersAdded" : 10,
+    "activeSuppliers" : 100,
+    "activeSuppliersAdded" : 100,
+    "averageRating" : 4.9,
+    "averageRatingPercentage" : 4.9
+
+  },
+  "suppliers":[{
+    "id" : 1,
+    "name" : "supplier1",
+    "location" : "karol bagh, Delhi",
+    "discount" : 15,
+    "rating" : 4.8,
+    "reviews" : 156,
+    "orderCategory":"vegetables",
+    "minDelieveryTime" : 2,
+    "maxDeliveryTime": 4,
+    "minOrderPrice": 500,
+    "Specialities":["onion","Tomato","Green Vegetables"],
+    "verified" : true
+  },
+{
+    "id" : 2,
+    "name" : "supplier2",
+    "location" : "karol bagh, Delhi",
+    "discount" : 15,
+    "rating" : 5,
+    "reviews" : 156,
+    "orderCategory":"vegetables",
+    "minDelieveryTime" : 5,
+    "maxDeliveryTime": 8,
+    "minOrderPrice": 300,
+    "Specialities":["onion","Tomato","Green Vegetables"],
+    "verified" : true
+  }
+
+
+
+
+
+],
+ "topsuppliers":[{
+    "id" : 1,
+    "name" : "supplier1",
+    "location" : "karol bagh, Delhi",
+    "discount" : 15,
+    "rating" : 4.8,
+    "reviews" : 156,
+    "orderCategory":"vegetables",
+    "minDelieveryTime" : 2,
+    "maxDeliveryTime": 4,
+    "minOrderPrice": 500,
+    "Specialities":["onion","Tomato","Green Vegetables"],
+    "verified" : true,
+      "totalOrders" : 123
+,
+"savings" : 1000
+  },
+{
+    "id" : 2,
+    "name" : "supplier2",
+    "location" : "karol bagh, Delhi",
+    "discount" : 15,
+    "rating" : 5,
+    "reviews" : 156,
+    "orderCategory":"vegetables",
+    "minDelieveryTime" : 5,
+    "maxDeliveryTime": 8,
+    "minOrderPrice": 300,
+    "Specialities":["onion","Tomato","Green Vegetables"],
+    "verified" : true,
+      "totalOrders" : 564
+,
+"savings" : 67398
+  }
+
+
+
+
+
+]
+
+}
