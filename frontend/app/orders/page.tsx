@@ -10,12 +10,60 @@ import { Badge } from "@/components/ui/badge"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { useLanguage } from "@/lib/language-context"
+import { useEffect } from 'react';
+import api from "@/lib/api-service"
+
+interface myordersstats  {
+  "totalorders" : number,
+  "pendingorders" : number,
+  "totalspent" : number,
+  "averageorder" : number
+}
+
+ interface orderhistory  
+{
+  "id" : number,
+  "orderid" : string,
+  "supplier" : string,
+  "items" : itemsinterface[],
+  "amount" : number,
+  "status" : string,
+  "orderdate" : string
+
+}
+
+ interface formattedorderhistory  
+{
+  "id" : string,
+  "orderid" : number,
+  "supplier" : string,
+  "items" : formatteditemsinterface[],
+  "amount" : string,
+  "status" : string,
+  "orderdate" : string
+
+}
+
+interface itemsinterface {
+  name: string, quantity: number, price: number 
+}
+interface formatteditemsinterface {
+  name: string, quantity: string, price: string 
+}
+
 
 export default function OrdersPage() {
   const { t } = useLanguage()
   const [searchTerm, setSearchTerm] = useState("")
   const [statusFilter, setStatusFilter] = useState("all")
   const [dateFilter, setDateFilter] = useState("all")
+  const [myOrdersData, setMyOrdersData] = useState<formattedorderhistory[]>([]);
+  const [orderstatsdata,setorderstatsdata] = useState<myordersstats>({
+     "totalorders" : 0,
+  "pendingorders" : 0,
+  "totalspent" : 0,
+  "averageorder" : 0
+  });
 
   const orders = [
     {
@@ -91,7 +139,66 @@ export default function OrdersPage() {
       trackingId: "TRK001233",
     },
   ]
+useEffect(() => {
+  const fetchStats = async () => {
+    try {
+      const response = await api.get<myordersstats>('/myordersstats');
+      setorderstatsdata(response.data);
+    } catch (error) {
+      console.error('Failed to fetch stats', error);
+    }
+  };
 
+  fetchStats();
+
+  const fetchOrderHistory = async () => {
+  
+      const response = await api.get<orderhistory[]>('/orderhistory');
+     // console.log(response.data);
+      if(response.data)
+      {
+        const foramtteddatas: formattedorderhistory[] = [];
+        const datafromapi = response.data
+
+        datafromapi.forEach((orderhistory,index)=>{
+         
+          var rawitems : itemsinterface[] = orderhistory.items;
+
+          var formateditems : formatteditemsinterface[]=[];
+
+          rawitems.forEach((rawitem)=>{
+
+            var newformat = {
+              "name" : t(`items.${rawitem.name}`),
+              "quantity" : `${rawitem.quantity} kg`,
+              "price" : `₹${rawitem.price}`
+
+            }
+formateditems.push(newformat);
+
+          })
+
+
+          var Formatorderhistory : formattedorderhistory = {
+            "id" : orderhistory.orderid,
+  "orderid" : orderhistory.id,
+  "supplier" : orderhistory.supplier,
+  "items" :formateditems,
+  "amount" : `₹${orderhistory.amount}`,
+    "status" : t(`status.${orderhistory.status}`),
+  "orderdate" : orderhistory.orderdate
+
+           
+          }
+
+          foramtteddatas.push(Formatorderhistory);
+        })
+console.log(foramtteddatas)
+setMyOrdersData(foramtteddatas);
+      }}
+      fetchOrderHistory();
+
+}, []);
   const getStatusColor = (status: string) => {
     switch (status) {
       case t("status.delivered"):
@@ -107,15 +214,14 @@ export default function OrdersPage() {
     }
   }
 
-  const filteredOrders = orders.filter((order) => {
+  const filteredOrders = myOrdersData.filter((order) => {
     const matchesSearch =
       order.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
       order.supplier.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      order.items.some((item) => item.name.toLowerCase().includes(searchTerm.toLowerCase()))
-    const matchesStatus = statusFilter === "all" || order.status === statusFilter
-
-    return matchesSearch && matchesStatus
-  })
+      order.items.some((item) => item.name.toLowerCase().includes(searchTerm.toLowerCase()));
+    const matchesStatus = statusFilter === 'all' || order.status === statusFilter;
+    return matchesSearch && matchesStatus;
+  });
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -149,7 +255,7 @@ export default function OrdersPage() {
               <Package className="h-4 w-4 text-blue-600" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">105</div>
+              <div className="text-2xl font-bold">{orderstatsdata.totalorders}</div>
               <p className="text-xs text-gray-600">{t("stats.this_month")}</p>
             </CardContent>
           </Card>
@@ -160,7 +266,7 @@ export default function OrdersPage() {
               <Truck className="h-4 w-4 text-orange-600" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">8</div>
+              <div className="text-2xl font-bold">{orderstatsdata.pendingorders}</div>
               <p className="text-xs text-gray-600">{t("orders.processing_transit")}</p>
             </CardContent>
           </Card>
@@ -171,7 +277,7 @@ export default function OrdersPage() {
               <Calendar className="h-4 w-4 text-green-600" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">₹1,24,500</div>
+              <div className="text-2xl font-bold">₹{orderstatsdata.totalspent}</div>
               <p className="text-xs text-gray-600">{t("stats.this_month")}</p>
             </CardContent>
           </Card>
@@ -182,7 +288,7 @@ export default function OrdersPage() {
               <Package className="h-4 w-4 text-purple-600" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">₹1,185</div>
+              <div className="text-2xl font-bold">₹{orderstatsdata.averageorder}</div>
               <p className="text-xs text-gray-600">{t("orders.per_order")}</p>
             </CardContent>
           </Card>
@@ -277,11 +383,11 @@ export default function OrdersPage() {
                           )}
                         </div>
                       </TableCell>
-                      <TableCell className="font-semibold">{order.totalAmount}</TableCell>
+                      <TableCell className="font-semibold">{order.amount}</TableCell>
                       <TableCell>
                         <Badge variant={getStatusColor(order.status)}>{order.status}</Badge>
                       </TableCell>
-                      <TableCell>{new Date(order.orderDate).toLocaleDateString("hi-IN")}</TableCell>
+                      <TableCell>{order.orderdate}</TableCell>
                       <TableCell>
                         <div className="flex items-center gap-2">
                           <Button size="sm" variant="outline">
