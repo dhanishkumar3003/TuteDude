@@ -1,12 +1,10 @@
 from django.contrib import admin
 from django.urls import path, include
-
-
-
 from rest_framework import permissions
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
 from django.urls import path, re_path
+
 
 schema_view = get_schema_view(
    openapi.Info(
@@ -21,24 +19,10 @@ schema_view = get_schema_view(
 
 
 
-
-from django.urls import include
-from rest_framework import permissions
-from drf_yasg.views import get_schema_view
-from drf_yasg import openapi
-schema_view = get_schema_view(
-    openapi.Info(
-        title="Product API",
-        default_version='v1',
-        description="API for managing products",
-    ),
-    public=True,
-    permission_classes=(permissions.AllowAny,),
-)
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    path('', include('Products.urls')),  
     path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'), 
+    path('admin/', admin.site.urls),
+    path('Products/', include('Products.urls')),  
     path('users/',include('User.urls'))
     ]+[
     re_path(r'^swagger/$', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
