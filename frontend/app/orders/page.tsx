@@ -10,87 +10,39 @@ import { Badge } from "@/components/ui/badge"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { useLanguage } from "@/lib/language-context"
+import { useEffect } from 'react';
+import { apiService } from '@/lib/api-service';
+
+interface Item {
+  name: string;
+  quantity: string;
+  price: string;
+}
+
+interface Order {
+  id: string;
+  supplier: string;
+  items: Item[];
+  totalAmount: string;
+  status: string;
+  orderDate: string;
+  deliveryDate: string;
+  paymentMethod: string;
+  trackingId: string;
+}
 
 export default function OrdersPage() {
   const { t } = useLanguage()
+  const [orders, setOrders] = useState<Order[]>([]);
   const [searchTerm, setSearchTerm] = useState("")
   const [statusFilter, setStatusFilter] = useState("all")
   const [dateFilter, setDateFilter] = useState("all")
 
-  const orders = [
-    {
-      id: "ORD001",
-      supplier: "Ram Provision Store",
-      items: [
-        { name: t("items.onion"), quantity: "10 kg", price: "₹180" },
-        { name: t("items.tomato"), quantity: "5 kg", price: "₹125" },
-        { name: t("items.green_chili"), quantity: "2 kg", price: "₹80" },
-      ],
-      totalAmount: "₹850",
-      status: t("status.delivered"),
-      orderDate: "2024-01-15",
-      deliveryDate: "2024-01-16",
-      paymentMethod: "UPI",
-      trackingId: "TRK001234",
-    },
-    {
-      id: "ORD002",
-      supplier: "Sharma Spices",
-      items: [
-        { name: t("items.garam_masala"), quantity: "2 kg", price: "₹640" },
-        { name: t("items.coriander_powder"), quantity: "3 kg", price: "₹360" },
-        { name: t("items.turmeric_powder"), quantity: "1 kg", price: "₹200" },
-      ],
-      totalAmount: "₹1,200",
-      status: t("status.in_transit"),
-      orderDate: "2024-01-16",
-      deliveryDate: "2024-01-17",
-      paymentMethod: "Cash",
-      trackingId: "TRK001235",
-    },
-    {
-      id: "ORD003",
-      supplier: "Gupta Grains",
-      items: [
-        { name: t("items.basmati_rice"), quantity: "25 kg", price: "₹1,875" },
-        { name: t("items.toor_dal"), quantity: "5 kg", price: "₹450" },
-      ],
-      totalAmount: "₹2,100",
-      status: t("status.processing"),
-      orderDate: "2024-01-17",
-      deliveryDate: "2024-01-18",
-      paymentMethod: "UPI",
-      trackingId: "TRK001236",
-    },
-    {
-      id: "ORD004",
-      supplier: "Patel Oil Mill",
-      items: [
-        { name: t("items.mustard_oil"), quantity: "5 liters", price: "₹700" },
-        { name: t("items.ghee"), quantity: "2 kg", price: "₹1,200" },
-      ],
-      totalAmount: "₹1,900",
-      status: t("status.cancelled"),
-      orderDate: "2024-01-14",
-      deliveryDate: "-",
-      paymentMethod: "UPI",
-      trackingId: "-",
-    },
-    {
-      id: "ORD005",
-      supplier: "Singh Dairy Farm",
-      items: [
-        { name: t("items.paneer"), quantity: "3 kg", price: "₹900" },
-        { name: t("items.curd"), quantity: "5 kg", price: "₹300" },
-      ],
-      totalAmount: "₹1,200",
-      status: t("status.delivered"),
-      orderDate: "2024-01-13",
-      deliveryDate: "2024-01-14",
-      paymentMethod: "Cash",
-      trackingId: "TRK001233",
-    },
-  ]
+  useEffect(() => {
+    apiService.get<Order[]>('/orders')
+      .then(setOrders)
+      .catch(() => setOrders([]));
+  }, []);
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -111,11 +63,10 @@ export default function OrdersPage() {
     const matchesSearch =
       order.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
       order.supplier.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      order.items.some((item) => item.name.toLowerCase().includes(searchTerm.toLowerCase()))
-    const matchesStatus = statusFilter === "all" || order.status === statusFilter
-
-    return matchesSearch && matchesStatus
-  })
+      order.items.some((item) => item.name.toLowerCase().includes(searchTerm.toLowerCase()));
+    const matchesStatus = statusFilter === 'all' || order.status === statusFilter;
+    return matchesSearch && matchesStatus;
+  });
 
   return (
     <div className="min-h-screen bg-gray-50">

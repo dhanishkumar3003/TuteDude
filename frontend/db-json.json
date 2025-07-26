@@ -90,6 +90,137 @@
 
 
 
-]
+],
+
+"orders": [
+  {
+    "id": "ORD001",
+    "supplier": "Ram Provision Store",
+    "items": [
+      { "name": "onion", "quantity": "10 kg", "price": "₹180" },
+      { "name": "tomato", "quantity": "5 kg", "price": "₹125" },
+      { "name": "green_chili", "quantity": "2 kg", "price": "₹80" }
+    ],
+    "totalAmount": "₹850",
+    "status": "delivered",
+    "orderDate": "2024-01-15",
+    "deliveryDate": "2024-01-16",
+    "paymentMethod": "UPI",
+    "trackingId": "TRK001234"
+  },
+  {
+    "id": "ORD002",
+    "supplier": "Sharma Spices",
+    "items": [
+      { "name": "garam_masala", "quantity": "2 kg", "price": "₹640" },
+      { "name": "coriander_powder", "quantity": "3 kg", "price": "₹360" },
+      { "name": "turmeric_powder", "quantity": "1 kg", "price": "₹200" }
+    ],
+    "totalAmount": "₹1200",
+    "status": "in_transit",
+    "orderDate": "2024-01-16",
+    "deliveryDate": "2024-01-17",
+    "paymentMethod": "Cash",
+    "trackingId": "TRK001235"
+  }
+],
+"activeBulkOrders": [
+    {
+      "id": "BULK001",
+      "title": "Onion - Bulk Order",
+      "category": "Vegetables",
+      "targetQuantity": "500 kg",
+      "currentQuantity": "320 kg",
+      "participants": 12,
+      "pricePerKg": "₹18",
+      "marketPrice": "₹25",
+      "savings": "28%",
+      "deadline": "2 days left",
+      "status": "Active",
+      "description": "Fresh onions, Grade A quality"
+    },
+    {
+      "id": "BULK002",
+      "title": "Basmati Rice - Bulk Order",
+      "category": "Grains",
+      "targetQuantity": "200 kg",
+      "currentQuantity": "180 kg",
+      "participants": 8,
+      "pricePerKg": "₹85",
+      "marketPrice": "₹110",
+      "savings": "23%",
+      "deadline": "5 days left",
+      "status": "Almost Complete",
+      "description": "Premium basmati rice, 1 year aged"
+    },
+    {
+      "id": "BULK003",
+      "title": "Garam Masala - Bulk Order",
+      "category": "Spices",
+      "targetQuantity": "50 kg",
+      "currentQuantity": "35 kg",
+      "participants": 15,
+      "pricePerKg": "₹320",
+      "marketPrice": "₹450",
+      "savings": "29%",
+      "deadline": "1 day left",
+      "status": "Active",
+      "description": "Homemade garam masala, pure spices"
+    }
+  ],
+  "completedOrders": [
+    {
+      "id": "BULK004",
+      "title": "Tomato - Bulk Order",
+      "quantity": "300 kg",
+      "participants": 10,
+      "finalPrice": "₹22/kg",
+      "savings": "₹2,400",
+      "completedDate": "3 days ago",
+      "status": "Completed"
+    },
+    {
+      "id": "BULK005",
+      "title": "Mustard Oil - Bulk Order",
+      "quantity": "100 liters",
+      "participants": 6,
+      "finalPrice": "₹140/liter",
+      "savings": "₹1,800",
+      "completedDate": "1 week ago",
+      "status": "Completed"
+    }
+  ],
+  "inventory": [
+    {
+      "id": 1,
+      "name": "Onion",
+      "category": "Vegetables",
+      "currentStock": 50,
+      "minStock": 20,
+      "maxStock": 100,
+      "unit": "kg",
+      "avgConsumption": "15 kg/day",
+      "lastRestocked": "2024-01-15",
+      "supplier": "Ram Provision Store",
+      "costPerUnit": "₹18",
+      "status": "In Stock",
+      "trend": "up"
+    },
+    {
+      "id": 2,
+      "name": "Tomato",
+      "category": "Vegetables",
+      "currentStock": 30,
+      "minStock": 10,
+      "maxStock": 80,
+      "unit": "kg",
+      "avgConsumption": "10 kg/day",
+      "lastRestocked": "2024-01-14",
+      "supplier": "Sharma Spices",
+      "costPerUnit": "₹25",
+      "status": "In Stock",
+      "trend": "up"
+    }
+  ]
 
 }
