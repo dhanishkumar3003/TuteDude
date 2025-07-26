@@ -8,9 +8,143 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Progress } from "@/components/ui/progress"
 import { LanguageSwitcher } from "@/components/language-switcher"
 import { useLanguage } from "@/lib/language-context"
+import { useEffect, useState } from 'react';
+import api from "@/lib/api-service"
+
+interface Stats {
+  monthlySavings: number;
+  totalOrders: number;
+  activeSuppliers: number;
+  averageRating: number;
+  monthlySavingsPercentage : number;
+  totalOrdersAdded : number;
+  activeSuppliersAdded : number;
+  averageRatingPercentage : number;
+}
+
+
+interface Supplier {
+
+ "id" : number,
+    "name" : string,
+    "location" : string,
+    "discount" : number,
+    "rating" : number,
+    "reviews" : number,
+    "orderCategory":string,
+    "minDelieveryTime" : number,
+    "maxDeliveryTime": number,
+    "minOrderPrice": number,
+    "Specialities":  string[],
+    "image" : string,
+    "verified" : boolean,
+    "totalOrders" : number
+,
+"savings" : number
+
+
+}
+
+
+interface FormattedSupplier {
+
+ "id" : number,
+    "name" : string,
+    "location" : string,
+    "discount" : string,
+    "rating" : number,
+    "reviews" : number,
+    "category":string,
+"deliveryTime" :string,
+"minOrder" : string,
+    "specialities":  string[],
+    "image" : string,
+"verified" : boolean,
+  "totalOrders" : number
+,
+"savings" : number
+
+}
+
 
 export default function Dashboard() {
   const { t } = useLanguage()
+const [stats, setStats] = useState<Stats>({
+  monthlySavings: 0,
+  totalOrders: 0,
+  activeSuppliers: 0,
+  averageRating: 0,
+    monthlySavingsPercentage : 0,
+  totalOrdersAdded : 0,
+  activeSuppliersAdded : 0,
+  averageRatingPercentage : 0
+});
+const [topSupplierData, setTopSupllierData] = useState<FormattedSupplier[]>([]);
+
+
+useEffect(() => {
+  const fetchStats = async () => {
+    try {
+      const response = await api.get<Stats>('/stats');
+      setStats(response.data);
+    } catch (error) {
+      console.error('Failed to fetch stats', error);
+    }
+  };
+
+  fetchStats();
+ const fetchTopSuppliers = async () => {
+    try {
+      const response = await api.get<Supplier[]>('/topsuppliers');
+     // console.log(response.data);
+      if(response.data)
+      {
+        const foramtteddatas: FormattedSupplier[] = [];
+        const datafromapi = response.data
+
+        datafromapi.forEach((supplier)=>{
+          var foramtspecialities = supplier.Specialities;
+          foramtspecialities.forEach((text)=>{
+            text = `items.${text.toLowerCase()}`;
+          })
+
+          var Formatsupplier = {
+            "id" : supplier.id,
+            "name" : supplier.name,
+            "category" : t(`category.${supplier.orderCategory.toLowerCase()}`),
+            "location" : t(`location.${supplier.location.toLowerCase()}`),
+            "rating" : supplier.rating,
+            "reviews" : supplier.reviews,
+            "verified" : supplier.verified,
+            "deliveryTime" : `${supplier.minDelieveryTime}-${supplier.maxDeliveryTime} ${t("delivery.hours")}`,
+      "minOrder": `₹${supplier.minOrderPrice}`,
+      "specialities": foramtspecialities,
+      "discount": `${supplier.discount}% ${t("discount.text")}`,
+      "image": supplier.image,
+        "totalOrders" : supplier.totalOrders
+,
+"savings" : supplier.savings
+           
+          }
+
+          foramtteddatas.push(Formatsupplier);
+        })
+//console.log(foramtteddatas)
+setTopSupllierData(foramtteddatas);
+      }
+    } catch (error) {
+      console.error('Failed to fetch stats', error);
+    }
+  };
+
+  fetchTopSuppliers();
+
+
+
+
+
+
+}, []);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -71,8 +205,8 @@ export default function Dashboard() {
               <TrendingUp className="h-4 w-4 text-green-600" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-green-600">₹12,450</div>
-              <p className="text-xs text-gray-600">+15% {t("stats.last_month")}</p>
+              <div className="text-2xl font-bold text-green-600">{stats.monthlySavings}</div>
+              <p className="text-xs text-gray-600">+{stats.monthlySavingsPercentage}% {t("stats.last_month")}</p>
             </CardContent>
           </Card>
 
@@ -82,8 +216,8 @@ export default function Dashboard() {
               <ShoppingCart className="h-4 w-4 text-blue-600" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">127</div>
-              <p className="text-xs text-gray-600">+8 {t("stats.this_month")}</p>
+              <div className="text-2xl font-bold">{stats.totalOrders}</div>
+              <p className="text-xs text-gray-600">+{stats.totalOrdersAdded} {t("stats.this_month")}</p>
             </CardContent>
           </Card>
 
@@ -93,8 +227,8 @@ export default function Dashboard() {
               <Users className="h-4 w-4 text-orange-600" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">23</div>
-              <p className="text-xs text-gray-600">12 {t("stats.verified")}</p>
+              <div className="text-2xl font-bold">{stats.activeSuppliers}</div>
+              <p className="text-xs text-gray-600">{stats.activeSuppliersAdded} {t("stats.verified")}</p>
             </CardContent>
           </Card>
 
@@ -104,8 +238,8 @@ export default function Dashboard() {
               <Star className="h-4 w-4 text-yellow-600" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">4.8</div>
-              <p className="text-xs text-gray-600">95% {t("stats.from_suppliers")}</p>
+              <div className="text-2xl font-bold">{stats.averageRating}</div>
+              <p className="text-xs text-gray-600">{stats.averageRatingPercentage}% {t("stats.from_suppliers")}</p>
             </CardContent>
           </Card>
         </div>
@@ -205,7 +339,40 @@ export default function Dashboard() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  <div className="flex items-center gap-3">
+                  {topSupplierData.map((supplier, index) => (
+  <div key={supplier.id || index} className="flex items-center gap-3">
+    <Avatar className="h-10 w-10">
+      <AvatarFallback>
+        {supplier.name
+          .split(' ')
+          .map((n) => n[0])
+          .join('')
+          .toUpperCase()}
+      </AvatarFallback>
+    </Avatar>
+
+    <div className="flex-1">
+      <p className="font-medium">{supplier.name}</p>
+      <div className="flex items-center gap-1">
+        <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
+        <span className="text-sm text-gray-600">
+          {supplier.rating} ({supplier.reviews} {t('reviews.text')})
+        </span>
+      </div>
+    </div>
+
+    <div className="text-right">
+      <p className="text-sm font-medium">
+        {supplier.totalOrders} {t('stats.orders')}
+      </p>
+      <p className="text-xs text-green-600">
+        ₹{supplier.savings.toLocaleString()} {t('stats.savings')}
+      </p>
+    </div>
+  </div>
+))}
+
+                  {/* <div className="flex items-center gap-3">
                     <Avatar className="h-10 w-10">
                       <AvatarFallback>RV</AvatarFallback>
                     </Avatar>
@@ -252,7 +419,7 @@ export default function Dashboard() {
                       <p className="text-sm font-medium">15 {t("stats.orders")}</p>
                       <p className="text-xs text-green-600">₹2,800 {t("stats.savings")}</p>
                     </div>
-                  </div>
+                  </div> */}
                 </div>
                 <Button variant="outline" className="w-full mt-4 bg-transparent" asChild>
                   <Link href="/suppliers">{t("common.view_all")}</Link>
