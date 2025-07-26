@@ -90,6 +90,45 @@
 
 
 
+],
+"myordersstats" : {
+  "totalorders" : 100,
+  "pendingorders" : 10,
+  "totalspent" : 12,
+  "averageorder" : 100
+},
+
+"orderhistory" : [
+{
+  "id" : 1,
+  "orderid" : "ORD001",
+  "supplier" : "supplier1",
+  "items" : [  { "name": "garam_masala","quantity": 2, "price": 640 },
+        { "name": "coriander_powder", "quantity": 3, "price": 360 },
+        { "name": "turmeric_powder", "quantity": 1, "price": 200 }
+      ],
+  "amount" : 856,
+  "status" : "delivered",
+  "orderdate" : "15/1/2024"
+
+}],
+
+"recentorderhistory" : [
+{
+  "id" : 1,
+  "orderid" : "ORD001",
+  "supplier" : "supplier1",
+  "items" : [  { "name": "garam_masala","quantity": 2, "price": 640 },
+        { "name": "coriander_powder", "quantity": 3, "price": 360 },
+        { "name": "turmeric_powder", "quantity": 1, "price": 200 }
+      ],
+  "amount" : 856,
+  "status" : "delivered",
+  "orderdate" : "15/1/2024"
+
+}
+
 ]
+
 
 }

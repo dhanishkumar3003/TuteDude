@@ -66,6 +66,36 @@ interface FormattedSupplier {
 
 }
 
+ interface orderhistory  
+{
+  "id" : number,
+  "orderid" : string,
+  "supplier" : string,
+  "items" : itemsinterface[],
+  "amount" : number,
+  "status" : string,
+  "orderdate" : string
+
+}
+
+ interface formattedorderhistory  
+{
+  "id" : string,
+  "orderid" : number,
+  "supplier" : string,
+  "items" : formatteditemsinterface[],
+  "amount" : string,
+  "status" : string,
+  "orderdate" : string
+
+}
+
+interface itemsinterface {
+  name: string, quantity: number, price: number 
+}
+interface formatteditemsinterface {
+  name: string, quantity: string, price: string 
+}
 
 export default function Dashboard() {
   const { t } = useLanguage()
@@ -80,6 +110,7 @@ const [stats, setStats] = useState<Stats>({
   averageRatingPercentage : 0
 });
 const [topSupplierData, setTopSupllierData] = useState<FormattedSupplier[]>([]);
+  const [myOrdersData, setMyOrdersData] = useState<formattedorderhistory[]>([]);
 
 
 useEffect(() => {
@@ -140,6 +171,52 @@ setTopSupllierData(foramtteddatas);
   fetchTopSuppliers();
 
 
+ const fetchOrderHistory = async () => {
+  
+      const response = await api.get<orderhistory[]>('/recentorderhistory');
+     // console.log(response.data);
+      if(response.data)
+      {
+        const foramtteddatas: formattedorderhistory[] = [];
+        const datafromapi = response.data
+
+        datafromapi.forEach((orderhistory,index)=>{
+         
+          var rawitems : itemsinterface[] = orderhistory.items;
+
+          var formateditems : formatteditemsinterface[]=[];
+
+          rawitems.forEach((rawitem)=>{
+
+            var newformat = {
+              "name" : t(`items.${rawitem.name}`),
+              "quantity" : `${rawitem.quantity} kg`,
+              "price" : `₹${rawitem.price}`
+
+            }
+formateditems.push(newformat);
+
+          })
+
+
+          var Formatorderhistory : formattedorderhistory = {
+            "id" : orderhistory.orderid,
+  "orderid" : orderhistory.id,
+  "supplier" : orderhistory.supplier,
+  "items" :formateditems,
+  "amount" : `₹${orderhistory.amount}`,
+  "status" : t(`status.${orderhistory.status}`),
+  "orderdate" : orderhistory.orderdate
+
+           
+          }
+
+          foramtteddatas.push(Formatorderhistory);
+        })
+console.log(foramtteddatas)
+setMyOrdersData(foramtteddatas);
+      }}
+      fetchOrderHistory();
 
 
 
@@ -285,19 +362,24 @@ setTopSupllierData(foramtteddatas);
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                    <div>
-                      <p className="font-medium">ORD-001234</p>
-                      <p className="text-sm text-gray-600">Ram Vegetables</p>
-                    </div>
-                    <div className="text-right">
-                      <p className="font-medium">₹2,450</p>
-                      <span className="inline-block px-2 py-1 text-xs bg-green-100 text-green-800 rounded">
-                        {t("status.delivered")}
-                      </span>
-                    </div>
-                  </div>
-                  <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+{myOrdersData.map((order, index) => (
+  <div
+    key={index}
+    className="flex items-center justify-between p-3 bg-gray-50 rounded-lg mb-2"
+  >
+    <div>
+      <p className="font-medium">{order.id}</p>
+      <p className="text-sm text-gray-600">{order.supplier}</p>
+    </div>
+    <div className="text-right">
+      <p className="font-medium">{order.amount}</p>
+      <span className="inline-block px-2 py-1 text-xs bg-green-100 text-green-800 rounded">
+        {t(`status.${order.status}`)}
+      </span>
+    </div>
+  </div>
+))}
+                  {/* <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                     <div>
                       <p className="font-medium">ORD-001233</p>
                       <p className="text-sm text-gray-600">Sharma Spices</p>
@@ -320,7 +402,7 @@ setTopSupllierData(foramtteddatas);
                         {t("status.processing")}
                       </span>
                     </div>
-                  </div>
+                  </div> */}
                 </div>
                 <Button variant="outline" className="w-full mt-4 bg-transparent" asChild>
                   <Link href="/orders">{t("common.view_all")}</Link>
