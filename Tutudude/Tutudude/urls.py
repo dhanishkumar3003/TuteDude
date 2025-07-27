@@ -23,6 +23,7 @@ urlpatterns = [
     path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'), 
     path('admin/', admin.site.urls),
     path('Products/', include('Products.urls')),  
+    path('Orders/', include('Orders.urls')),  
     path('users/',include('User.urls'))
     ]+[
     re_path(r'^swagger/$', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),

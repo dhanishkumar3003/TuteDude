@@ -40,8 +40,9 @@ INSTALLED_APPS = [
     'User',
     'Products',
     'rest_framework',
-    "drf_yasg",
-    'corsheaders'
+    'drf_yasg',
+    'corsheaders',
+    'Orders'
 
 ]
 
