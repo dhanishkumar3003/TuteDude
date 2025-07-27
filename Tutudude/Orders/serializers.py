@@ -20,12 +20,19 @@ class OrderSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Order
-        fields = ['id', 'users', 'created_at', 'items']
+        fields = [
+            'id',
+            'users',
+            'created_at',
+            'items',
+            'rating',
+            'order_status',
+        ]
 
     def create(self, validated_data):
         items_data = validated_data.pop('items')
         users = validated_data.pop('users')
-        order = Order.objects.create()
+        order = Order.objects.create(**validated_data)
         order.users.set(users)
         for item_data in items_data:
             OrderItem.objects.create(order=order, **item_data)

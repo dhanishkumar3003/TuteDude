@@ -9,6 +9,30 @@ from django.contrib.auth import login,authenticate,logout
 from drf_yasg.utils import swagger_auto_schema
 from django.db.models import Q
 
+from Orders.models import Order, OrderItem  # Adjust import based on your structure
+from django.db.models import F, Sum, Avg
+
+class RevenueAndRatingView(APIView):
+    def get(self, request):
+        completed_orders = Order.objects.filter(order_status='completed')
+
+        # Calculate total revenue
+        total_revenue = OrderItem.objects.filter(
+            order__in=completed_orders
+        ).aggregate(
+            revenue=Sum(F('quantity') * F('product__price'))
+        )['revenue'] or 0
+
+        # Calculate average rating
+        avg_rating = completed_orders.aggregate(
+            average_rating=Avg('rating')
+        )['average_rating'] or 0
+
+        return Response({
+            "total_revenue": float(total_revenue),
+            "average_rating": round(avg_rating, 2)
+        }, status=status.HTTP_200_OK)
+    
 class UserCreateView(CreateAPIView):
     queryset=UserModel.objects.all()
     serializer_class=UserSerializers
